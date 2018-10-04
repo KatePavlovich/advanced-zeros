@@ -1,9 +1,7 @@
 module.exports = function getZerosCount(number, base) {
   // your implementation
   let baseArr = [];
-  let divisionResultsArr = [];
   let resultsArr = [];
-
   let factors = primeFactors();
 
   function primeFactors() {
@@ -22,39 +20,34 @@ module.exports = function getZerosCount(number, base) {
     return factors;
   }
 
-  factors.reverse();
-  let factorsLen = factors.length;
+  let factorsSet = [...new Set(factors)];
   let localBase = base;
-  let counter = 1;
 
-  for (let i = 0; i < factorsLen; i++) {
-
-    let maxFactor = factors[i];
+  for (let i = 0, factorsLen = factorsSet.length; i < factorsLen; i++) {
+    let maxFactor = factorsSet[i];
     let localMaxFactor = maxFactor;
+    let counter = 0;
 
-    if (localBase > 0) {
-      if (localBase % maxFactor === 0) {
-        if (maxFactor <= localBase) {
-          baseArr.push([maxFactor, counter]);
-          localBase -= maxFactor * counter;
-          counter++;
-          maxFactor *= localMaxFactor;
-        }
-        i--;
-        counter = 1;
-      }
+    while (localBase % maxFactor === 0) {
+      counter++;
+      maxFactor *= localMaxFactor;
     }
+
+    baseArr.push([localMaxFactor, counter]);
+    localBase = localBase / Math.pow(localMaxFactor, counter);
+    counter = 0;
   }
 
-  let baseArrLen = baseArr.length;
-  for (let i = 0; i < baseArrLen; i++) {
-
-    getdivisionResultsArr(baseArr[i][0]);
-    let reducedValue = divisionResultsArr.reduce((p, c) => p + c, 0);
-    resultsArr.push(reducedValue / baseArr[i][1]);
+  for (let i = 0, baseArrLen = baseArr.length; i < baseArrLen; i++) {
+    let reducedValue = getdivisionResultsArr(baseArr[i][0]).reduce(
+      (p, c) => p + c,
+      0
+    );
+    resultsArr.push(Math.floor(reducedValue / baseArr[i][1]));
   }
 
   function getdivisionResultsArr(x) {
+    let divisionResultsArr = [];
     let localX = x;
 
     while (localX <= number) {
@@ -64,6 +57,5 @@ module.exports = function getZerosCount(number, base) {
     return divisionResultsArr;
   }
 
-  let unicFactors = [...new Set(factors)];
-  return (unicFactors.length === 1) ? Math.floor(Math.min.apply(null, resultsArr) / factors.length) : Math.floor(Math.min.apply(null, resultsArr));
-}
+  return Math.min.apply(null, resultsArr);
+};
